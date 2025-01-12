@@ -1,74 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trending Topics</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trending Topics</title>
+  <style>
+    body{
+        text-align: center;
+    }
+  </style>
+  <script>
+    async function runScript() {
+      const runScriptButton = document.getElementById("run-script");
+      const outputDiv = document.getElementById("output");
+      outputDiv.innerHTML = "Running the script...";
+
+      try {
+        // Run the script
+        const runResponse = await fetch("http://localhost:5000/run_script");
+        const runData = await runResponse.json();
+        
+        if (!runResponse.ok) {
+          throw new Error(runData.error || "Failed to run the script.");
         }
-        .container {
-            text-align: center;
-            background-color: white;
-            padding: 30px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
+
+        // Fetch the trending data
+        const fetchResponse = await fetch("http://localhost:5000/get_trending_data");
+        const trendingData = await fetchResponse.json();
+
+        if (!fetchResponse.ok) {
+          throw new Error(trendingData.error || "Failed to fetch trending data.");
         }
-        #result {
-            margin-top: 20px;
-            font-size: 18px;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+
+        // Display the trending data
+        const trends = trendingData.trends.map(
+          (trend, index) => `<li>${trend.rank}. ${trend.topic}</li>`
+        ).join("");
+
+        outputDiv.innerHTML = `
+          <p>These are the most happening topics as on <strong>${trendingData.date_time}</strong>:</p>
+          <ul>${trends}</ul>
+          <p>The IP address used for this query was <strong>${trendingData.ip_address}</strong>.</p>
+          <p>Here’s a JSON extract of this record from the MongoDB:</p>
+          <pre>${JSON.stringify(trendingData, null, 2)}</pre>
+          <button id="run-script" onclick="runScript()">Click here to run the query again</button>
+        `;
+      } catch (error) {
+        outputDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+      }
+    }
+  </script>
 </head>
 <body>
-    <div class="container">
-        <h1>Trending Topics from Twitter</h1>
-        <button onclick="runScript()">Run Script</button>
-        <div id="result"></div>
-    </div>
-
-    <script>
-        function runScript() {
-            fetch('http://localhost:5000/get_trending_data')
-                .then(response => response.json())
-                .then(data => {
-                    const resultDiv = document.getElementById('result');
-                    
-                    if (data.error) {
-                        resultDiv.innerHTML = `Error: ${data.error}`;
-                    } else {
-                        const trends = data.trends.map((trend, index) => `<li>${index + 1}. ${trend.topic}</li>`).join('');
-                        resultDiv.innerHTML = `
-                            <p>These are the most happening topics as on ${data.date_time}</p>
-                            <ul>${trends}</ul>
-                            <p>The IP address used for this query was ${data.ip_address}</p>
-                        `;
-                    }
-                })
-                .catch(error => {
-                    document.getElementById('result').innerHTML = `Error: ${error}`;
-                });
-        }
-    </script>
+  <h1>Trending Topics</h1>
+  <button id="run-script" onclick="runScript()">Click here to run the script</button>
+  <div id="output" style="margin-top: 20px;"></div>
 </body>
 </html>

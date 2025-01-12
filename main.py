@@ -35,7 +35,6 @@ try:
     next_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//span[text()='Next']")))
     next_button.click()
 
-    time.sleep(2)
     password_field = wait.until(EC.presence_of_element_located((By.NAME, "password")))
     password_field.send_keys("RAMAN@200")  
     login_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//span[text()='Log in']")))
@@ -44,9 +43,8 @@ try:
     wait.until(EC.presence_of_element_located((By.XPATH, "//a[@href='/home']")))
     print("Logged in successfully.")
 
-    time.sleep(5)
+    
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(3)
 
     trends = wait.until(EC.presence_of_all_elements_located(
         (By.XPATH, "//div[@aria-label='Timeline: Trending now']//div[@data-testid='trend']//span"
