@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trending Topics</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Trending Topics from Twitter</h1>
+        <button onclick="runScript()">Run Script</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function runScript() {
+            fetch('http://localhost:5000/get_trending_data')
+                .then(response => response.json())
+                .then(data => {
+                    const resultDiv = document.getElementById('result');
+                    
+                    if (data.error) {
+                        resultDiv.innerHTML = `Error: ${data.error}`;
+                    } else {
+                        const trends = data.trends.map((trend, index) => `<li>${index + 1}. ${trend.topic}</li>`).join('');
+                        resultDiv.innerHTML = `
+                            <p>These are the most happening topics as on ${data.date_time}</p>
+                            <ul>${trends}</ul>
+                            <p>The IP address used for this query was ${data.ip_address}</p>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('result').innerHTML = `Error: ${error}`;
+                });
+        }
+    </script>
+</body>
+</html>
